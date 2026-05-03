@@ -1,30 +1,24 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMe = exports.login = exports.register = void 0;
-const bcrypt_1 = __importDefault(require("bcrypt"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const prisma_js_1 = __importDefault(require("../utils/prisma.js"));
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import prisma from '../utils/prisma.js';
 const JWT_SECRET = process.env['JWT_SECRET'] || 'fallback-secret';
 function generateToken(userId) {
-    return jsonwebtoken_1.default.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
 }
-const register = async (req, res) => {
+export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
         if (!name || !email || !password) {
             res.status(400).json({ error: 'Name, email, and password are required' });
             return;
         }
-        const existingUser = await prisma_js_1.default.user.findUnique({ where: { email } });
+        const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
             res.status(409).json({ error: 'Email already registered' });
             return;
         }
-        const passwordHash = await bcrypt_1.default.hash(password, 12);
-        const user = await prisma_js_1.default.user.create({
+        const passwordHash = await bcrypt.hash(password, 12);
+        const user = await prisma.user.create({
             data: { name, email, passwordHash },
             select: { id: true, name: true, email: true, roleDefault: true, createdAt: true },
         });
@@ -35,20 +29,19 @@ const register = async (req, res) => {
         res.status(500).json({ error: 'Registration failed' });
     }
 };
-exports.register = register;
-const login = async (req, res) => {
+export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
             res.status(400).json({ error: 'Email and password are required' });
             return;
         }
-        const user = await prisma_js_1.default.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
             res.status(401).json({ error: 'Invalid credentials' });
             return;
         }
-        const valid = await bcrypt_1.default.compare(password, user.passwordHash);
+        const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) {
             res.status(401).json({ error: 'Invalid credentials' });
             return;
@@ -69,10 +62,9 @@ const login = async (req, res) => {
         res.status(500).json({ error: 'Login failed' });
     }
 };
-exports.login = login;
-const getMe = async (req, res) => {
+export const getMe = async (req, res) => {
     try {
-        const user = await prisma_js_1.default.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: req.userId },
             select: { id: true, name: true, email: true, roleDefault: true, createdAt: true },
         });
@@ -86,5 +78,4 @@ const getMe = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch user' });
     }
 };
-exports.getMe = getMe;
 //# sourceMappingURL=auth.controller.js.map

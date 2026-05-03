@@ -1,6 +1,7 @@
 {
   "name": "ethara-backend",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node --esm src/index.ts",

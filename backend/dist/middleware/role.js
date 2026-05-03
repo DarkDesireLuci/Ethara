@@ -1,11 +1,5 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.requireProjectRole = void 0;
-const prisma_js_1 = __importDefault(require("../utils/prisma.js"));
-const requireProjectRole = (requiredRole) => {
+import prisma from '../utils/prisma.js';
+export const requireProjectRole = (requiredRole) => {
     return async (req, res, next) => {
         const userId = req.userId;
         const projectId = req.params['id'] || req.params['projectId'] || req.body?.projectId;
@@ -14,7 +8,7 @@ const requireProjectRole = (requiredRole) => {
             return;
         }
         try {
-            const member = await prisma_js_1.default.projectMember.findUnique({
+            const member = await prisma.projectMember.findUnique({
                 where: {
                     projectId_userId: { projectId, userId },
                 },
@@ -34,5 +28,4 @@ const requireProjectRole = (requiredRole) => {
         }
     };
 };
-exports.requireProjectRole = requireProjectRole;
 //# sourceMappingURL=role.js.map

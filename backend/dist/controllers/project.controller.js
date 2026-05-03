@@ -1,11 +1,5 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeMember = exports.addMember = exports.deleteProject = exports.updateProject = exports.getProject = exports.getProjects = exports.createProject = void 0;
-const prisma_js_1 = __importDefault(require("../utils/prisma.js"));
-const createProject = async (req, res) => {
+import prisma from '../utils/prisma.js';
+export const createProject = async (req, res) => {
     try {
         const { name, description } = req.body;
         const userId = req.userId;
@@ -13,7 +7,7 @@ const createProject = async (req, res) => {
             res.status(400).json({ error: 'Project name is required' });
             return;
         }
-        const project = await prisma_js_1.default.project.create({
+        const project = await prisma.project.create({
             data: {
                 name,
                 description: description || null,
@@ -33,11 +27,10 @@ const createProject = async (req, res) => {
         res.status(500).json({ error: 'Failed to create project' });
     }
 };
-exports.createProject = createProject;
-const getProjects = async (req, res) => {
+export const getProjects = async (req, res) => {
     try {
         const userId = req.userId;
-        const projects = await prisma_js_1.default.project.findMany({
+        const projects = await prisma.project.findMany({
             where: {
                 members: { some: { userId } },
             },
@@ -53,11 +46,10 @@ const getProjects = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch projects' });
     }
 };
-exports.getProjects = getProjects;
-const getProject = async (req, res) => {
+export const getProject = async (req, res) => {
     try {
-        const { id } = req.params;
-        const project = await prisma_js_1.default.project.findUnique({
+        const id = req.params['id'];
+        const project = await prisma.project.findUnique({
             where: { id },
             include: {
                 creator: { select: { id: true, name: true, email: true } },
@@ -78,12 +70,11 @@ const getProject = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch project' });
     }
 };
-exports.getProject = getProject;
-const updateProject = async (req, res) => {
+export const updateProject = async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params['id'];
         const { name, description } = req.body;
-        const project = await prisma_js_1.default.project.update({
+        const project = await prisma.project.update({
             where: { id },
             data: {
                 ...(name !== undefined && { name }),
@@ -100,39 +91,37 @@ const updateProject = async (req, res) => {
         res.status(500).json({ error: 'Failed to update project' });
     }
 };
-exports.updateProject = updateProject;
-const deleteProject = async (req, res) => {
+export const deleteProject = async (req, res) => {
     try {
-        const { id } = req.params;
-        await prisma_js_1.default.project.delete({ where: { id } });
+        const id = req.params['id'];
+        await prisma.project.delete({ where: { id } });
         res.json({ message: 'Project deleted successfully' });
     }
     catch {
         res.status(500).json({ error: 'Failed to delete project' });
     }
 };
-exports.deleteProject = deleteProject;
-const addMember = async (req, res) => {
+export const addMember = async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params['id'];
         const { email, role } = req.body;
         if (!email) {
             res.status(400).json({ error: 'Member email is required' });
             return;
         }
-        const user = await prisma_js_1.default.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
             res.status(404).json({ error: 'User not found with that email' });
             return;
         }
-        const existing = await prisma_js_1.default.projectMember.findUnique({
+        const existing = await prisma.projectMember.findUnique({
             where: { projectId_userId: { projectId: id, userId: user.id } },
         });
         if (existing) {
             res.status(409).json({ error: 'User is already a member of this project' });
             return;
         }
-        const member = await prisma_js_1.default.projectMember.create({
+        const member = await prisma.projectMember.create({
             data: {
                 projectId: id,
                 userId: user.id,
@@ -146,11 +135,11 @@ const addMember = async (req, res) => {
         res.status(500).json({ error: 'Failed to add member' });
     }
 };
-exports.addMember = addMember;
-const removeMember = async (req, res) => {
+export const removeMember = async (req, res) => {
     try {
-        const { id, userId } = req.params;
-        await prisma_js_1.default.projectMember.delete({
+        const id = req.params['id'];
+        const userId = req.params['userId'];
+        await prisma.projectMember.delete({
             where: { projectId_userId: { projectId: id, userId: userId } },
         });
         res.json({ message: 'Member removed successfully' });
@@ -159,5 +148,4 @@ const removeMember = async (req, res) => {
         res.status(500).json({ error: 'Failed to remove member' });
     }
 };
-exports.removeMember = removeMember;
 //# sourceMappingURL=project.controller.js.map

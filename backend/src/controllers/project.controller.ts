@@ -56,7 +56,7 @@ export const getProjects = async (req: AuthRequest, res: Response): Promise<void
 
 export const getProject = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
 
     const project = await prisma.project.findUnique({
       where: { id },
@@ -83,7 +83,7 @@ export const getProject = async (req: AuthRequest, res: Response): Promise<void>
 
 export const updateProject = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
     const { name, description } = req.body;
 
     const project = await prisma.project.update({
@@ -106,7 +106,7 @@ export const updateProject = async (req: AuthRequest, res: Response): Promise<vo
 
 export const deleteProject = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
     await prisma.project.delete({ where: { id } });
     res.json({ message: 'Project deleted successfully' });
   } catch {
@@ -116,7 +116,7 @@ export const deleteProject = async (req: AuthRequest, res: Response): Promise<vo
 
 export const addMember = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
     const { email, role } = req.body;
 
     if (!email) {
@@ -156,7 +156,8 @@ export const addMember = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const removeMember = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id, userId } = req.params;
+    const id = req.params['id'] as string;
+    const userId = req.params['userId'] as string;
 
     await prisma.projectMember.delete({
       where: { projectId_userId: { projectId: id!, userId: userId! } },

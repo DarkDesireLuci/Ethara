@@ -46,7 +46,7 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
 
 export const getProjectTasks = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { projectId } = req.params;
+    const projectId = req.params['projectId'] as string;
     const { status, priority, assignedTo } = req.query;
 
     const where: Record<string, unknown> = { projectId };
@@ -71,7 +71,7 @@ export const getProjectTasks = async (req: AuthRequest, res: Response): Promise<
 
 export const getTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
 
     const task = await prisma.task.findUnique({
       where: { id },
@@ -95,7 +95,7 @@ export const getTask = async (req: AuthRequest, res: Response): Promise<void> =>
 
 export const updateTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
     const { title, description, dueDate, priority, status, assignedTo } = req.body;
 
     const task = await prisma.task.update({
@@ -122,7 +122,7 @@ export const updateTask = async (req: AuthRequest, res: Response): Promise<void>
 
 export const deleteTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
     await prisma.task.delete({ where: { id } });
     res.json({ message: 'Task deleted successfully' });
   } catch {
@@ -132,7 +132,7 @@ export const deleteTask = async (req: AuthRequest, res: Response): Promise<void>
 
 export const updateTaskStatus = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params['id'] as string;
     const { status } = req.body;
 
     const validStatuses = ['To Do', 'In Progress', 'Done'];
