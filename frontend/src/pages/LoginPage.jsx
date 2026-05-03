@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Sparkles, Mail, Lock } from 'lucide-react';
+import { Sparkles, Mail, Lock, AlertCircle } from 'lucide-react';
 import './Auth.css';
 
 export default function LoginPage() {
@@ -21,7 +21,7 @@ export default function LoginPage() {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Failed to login');
+      setError(err.message || 'Failed to login. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,29 @@ export default function LoginPage() {
           <p>Enter your credentials to access your workspace</p>
         </div>
 
-        {error && <div className="auth-error">{error}</div>}
+        <div style={{ 
+          background: 'rgba(124, 58, 237, 0.1)', 
+          border: '1px solid rgba(124, 58, 237, 0.3)',
+          borderRadius: 'var(--radius-md)',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          fontSize: '0.85rem'
+        }}>
+          <div style={{ fontWeight: 600, marginBottom: '6px', color: 'var(--accent-light)' }}>
+            🔑 Test Credentials
+          </div>
+          <div style={{ color: 'var(--text-secondary)' }}>
+            Email: <strong style={{ color: 'var(--text-primary)' }}>test@example.com</strong><br />
+            Password: <strong style={{ color: 'var(--text-primary)' }}>test123</strong>
+          </div>
+        </div>
+
+        {error && (
+          <div className="auth-error">
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="input-group">
@@ -53,6 +75,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
               />
             </div>
           </div>
@@ -69,6 +92,8 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
+                minLength={6}
               />
             </div>
           </div>

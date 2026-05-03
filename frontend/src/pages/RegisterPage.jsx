@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Sparkles, Mail, Lock, User } from 'lucide-react';
+import { Sparkles, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import './Auth.css';
 
 export default function RegisterPage() {
@@ -16,13 +16,19 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
     setLoading(true);
 
     try {
       await register(name, email, password);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Failed to create account');
+      setError(err.message || 'Failed to create account. Email may already be registered.');
     } finally {
       setLoading(false);
     }
@@ -39,7 +45,12 @@ export default function RegisterPage() {
           <p>Get started with your new workspace</p>
         </div>
 
-        {error && <div className="auth-error">{error}</div>}
+        {error && (
+          <div className="auth-error">
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="input-group">
@@ -54,6 +65,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                autoComplete="name"
               />
             </div>
           </div>
@@ -70,6 +82,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
               />
             </div>
           </div>
@@ -87,8 +100,12 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                autoComplete="new-password"
               />
             </div>
+            <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+              Minimum 6 characters
+            </small>
           </div>
 
           <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>
