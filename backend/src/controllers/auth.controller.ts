@@ -14,6 +14,8 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
   try {
     const { name, email, password } = req.body;
 
+    console.log('Register attempt:', { name, email, hasPassword: !!password });
+
     if (!name || !email || !password) {
       res.status(400).json({ error: 'Name, email, and password are required' });
       return;
@@ -21,21 +23,26 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
+      console.log('Email already exists:', email);
       res.status(409).json({ error: 'Email already registered' });
       return;
     }
 
+    console.log('Hashing password...');
     const passwordHash = await bcrypt.hash(password, 12);
 
+    console.log('Creating user...');
     const user = await prisma.user.create({
       data: { name, email, passwordHash },
       select: { id: true, name: true, email: true, roleDefault: true, createdAt: true },
     });
 
+    console.log('User created:', user.id);
     const token = generateToken(user.id);
 
     res.status(201).json({ user, token });
-  } catch {
+  } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed' });
   }
 };
@@ -44,6 +51,8 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
+    console.log('Login attempt:', { email, hasPassword: !!password });
+
     if (!email || !password) {
       res.status(400).json({ error: 'Email and password are required' });
       return;
@@ -51,16 +60,20 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
+      console.log('User not found:', email);
       res.status(401).json({ error: 'Invalid credentials' });
       return;
     }
 
+    console.log('Verifying password...');
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) {
+      console.log('Invalid password for:', email);
       res.status(401).json({ error: 'Invalid credentials' });
       return;
     }
 
+    console.log('Login successful:', user.id);
     const token = generateToken(user.id);
 
     res.json({
@@ -73,7 +86,8 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       },
       token,
     });
-  } catch {
+  } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
 };
