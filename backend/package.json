@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "nodemon --exec tsx src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/run-seed.js && node dist/index.js",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "seed": "tsx seed.ts",
+    "seed": "tsx src/run-seed.ts",
+    "seed:prod": "node dist/run-seed.js",
     "check:db": "node ../check-mongodb.js"
   },
   "keywords": [],
