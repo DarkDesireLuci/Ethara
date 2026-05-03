@@ -1,3 +1,4 @@
+
 # Ethara - Project Management Platform
 
 A modern, full-stack project management application with real-time task tracking and team collaboration features.
@@ -235,4 +236,5 @@ None at the moment. Please report any issues you find!
 - ✅ All features implemented and tested
 - ✅ Responsive design working
 - ✅ Authentication working
+- ✅ Drag-and-drop kanban board working
 - ✅ Drag-and-drop kanban board working
