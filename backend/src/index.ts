@@ -9,8 +9,10 @@ const app = express();
 const PORT = parseInt(process.env['PORT'] || '3000', 10);
 
 import { apiLimiter } from './middleware/rateLimiter.js';
+import morgan from 'morgan';
 
 // Middleware
+app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 app.use('/api', apiLimiter);
