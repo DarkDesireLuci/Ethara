@@ -4,12 +4,12 @@ import cors from 'cors';
 import authRoutes from './routes/auth.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import taskRoutes from './routes/task.routes.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
+import morgan from 'morgan';
+import { seedDatabase } from './utils/seed.js';
 
 const app = express();
 const PORT = parseInt(process.env['PORT'] || '3000', 10);
-
-import { apiLimiter } from './middleware/rateLimiter.js';
-import morgan from 'morgan';
 
 // Middleware
 app.use(morgan('dev'));
@@ -33,8 +33,19 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Ethara backend running on http://localhost:${PORT}`);
-});
+// Initialize database and start server
+async function start(): Promise<void> {
+  try {
+    await seedDatabase();
+  } catch (err) {
+    console.error('⚠️  Database seeding failed (continuing startup):', err);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Ethara backend running on http://localhost:${PORT}`);
+  });
+}
+
+start();
 
 export default app;
