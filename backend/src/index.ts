@@ -8,9 +8,12 @@ import taskRoutes from './routes/task.routes.js';
 const app = express();
 const PORT = parseInt(process.env['PORT'] || '3000', 10);
 
+import { apiLimiter } from './middleware/rateLimiter.js';
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/api', apiLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
